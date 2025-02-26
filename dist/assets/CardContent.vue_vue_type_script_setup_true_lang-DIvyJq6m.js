@@ -1,0 +1,2 @@
+import{d as t,I as n,g as r,c as o,aW as l,p,aX as u}from"./main-Dr4KW1PH.js";const _=t({__name:"CardHeader",props:{class:{}},setup(s){const a=s,e=n(()=>u("flex flex-col space-y-1.5 p-6",a.class));return(c,m)=>(r(),o("div",{class:p(e.value)},[l(c.$slots,"default")],2))}}),f=t({__name:"CardContent",props:{class:{}},setup(s){const a=s,e=n(()=>u("p-6 pt-0",a.class));return(c,m)=>(r(),o("div",{class:p(e.value)},[l(c.$slots,"default")],2))}});export{_,f as a};
+//# sourceMappingURL=CardContent.vue_vue_type_script_setup_true_lang-DIvyJq6m.js.map

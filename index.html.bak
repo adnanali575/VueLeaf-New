@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VueLeaf</title>
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "4a3a8d62-b651-461c-acda-633e03f6ec57", // We'll replace this in production
+          allowLocalhostAsSecureOrigin: true,
+          promptOptions: {
+            slidedown: {
+              prompts: [{
+                type: "push",
+                autoPrompt: false,
+                text: {
+                  actionMessage: "VueLeaf would like to send you notifications for important updates about your brand's reviews and reputation.",
+                  acceptButton: "Allow",
+                  cancelButton: "No thanks",
+                  title: "Enable Brand Monitoring Alerts"
+                }
+              }]
+            }
+          }
+        });
+
+        // Listen for subscription changes
+        OneSignal.User.PushSubscription.addEventListener("change", function(event) {
+          console.log("Push subscription state changed:", event.current);
+        });
+
+        console.log('OneSignal initialized successfully');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

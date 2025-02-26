@@ -1,0 +1,38 @@
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
+
+// Plugin to replace OneSignal App ID
+const replaceOneSignalAppId = () => {
+  return {
+    name: 'replace-onesignal-appid',
+    transformIndexHtml(html: string) {
+      return html.replace(
+        '"4a3a8d62-b651-461c-acda-633e03f6ec57"', // Development App ID
+        `"${process.env.VITE_ONESIGNAL_APP_ID || '4a3a8d62-b651-461c-acda-633e03f6ec57'}"` // Use env var or fallback
+      )
+    }
+  }
+}
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    replaceOneSignalAppId()
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-router', 'pinia'],
+        }
+      }
+    }
+  }
+})
