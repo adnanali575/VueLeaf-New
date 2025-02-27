@@ -72,7 +72,13 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Class for green border of input box */
+.green-outline {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-transparent
 }

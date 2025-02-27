@@ -141,7 +141,7 @@ const toggleFeatures = (plan: string) => {
 async function fetchInvoices() {
   isLoadingInvoices.value = true
   invoiceError.value = null
-  
+
   try {
     const response = await axios.get<Invoice[]>('billing/invoices/')
     invoices.value = response.data
@@ -220,7 +220,7 @@ function loadBTCPayScript(): Promise<void> {
     const script = document.createElement('script')
     script.src = 'https://btcpay978166.lndyn.com/modal/btcpay.js'
     script.async = true
-    
+
     // Get nonce from existing script
     const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce')
     if (nonce) {
@@ -294,7 +294,7 @@ async function handleUpgrade(planType: string, billingCycle: 'monthly' | 'annual
       plan_type: planType,
       billing_cycle: billingCycle
     })
-    
+
     if (!response.data.invoiceUrl) {
       console.error('No invoice URL in response')
       error.value = {
@@ -329,487 +329,435 @@ async function handleUpgrade(planType: string, billingCycle: 'monthly' | 'annual
 </script>
 
 <template>
-  <div class="flex-1 p-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex-1 p-2 md:p-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-8">
       <!-- Subscription Header -->
-      <SubscriptionHeader
-        v-model:billingCycle="billingCycle"
-        :selected-plan="selectedPlan"
-        :subscription-data="subscriptionData"
-        class="mb-8"
-      />
+      <SubscriptionHeader v-model:billingCycle="billingCycle" :selected-plan="selectedPlan"
+        :subscription-data="subscriptionData" class="mb-8" />
 
-    <!-- Payment History Section -->
-    <div class="bg-gray-50/80 rounded-lg p-6 shadow-sm border border-gray-100 mb-8">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #F7931A">
-            <Bitcoin class="w-5 h-5 text-white" />
+      <!-- Payment History Section -->
+      <div class="bg-gray-50/80 rounded-lg p-6 shadow-sm border border-gray-100 mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #F7931A">
+              <Bitcoin class="w-5 h-5 text-white" />
+            </div>
+            <h2 class="text-lg font-medium text-gray-800">Payment History</h2>
           </div>
-          <h2 class="text-lg font-medium text-gray-800">Payment History</h2>
-        </div>
-        <span class="text-sm text-gray-500">Last 30 days</span>
-      </div>
-
-      <div class="border-t border-gray-200/50 pt-4">
-        <!-- Loading State -->
-        <div v-if="isLoadingInvoices" class="flex items-center justify-center py-12">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p class="ml-3 text-sm text-gray-600">Loading payment history...</p>
+          <span class="text-sm text-gray-500">Last 30 days</span>
         </div>
 
-        <!-- Error State -->
-        <div v-else-if="invoiceError" class="text-center py-12">
-          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-            <XCircle class="h-6 w-6 text-red-600" />
+        <div class="border-t border-gray-200/50 pt-4">
+          <!-- Loading State -->
+          <div v-if="isLoadingInvoices" class="flex flex-col gap-1 items-center justify-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p class="ml-3 text-sm text-gray-600">Loading payment history...</p>
           </div>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">Failed to load payment history</h3>
-          <p class="mt-1 text-sm text-gray-500">{{ invoiceError }}</p>
-        </div>
 
-        <!-- Invoice List -->
-        <div v-else-if="invoices.length" class="divide-y divide-gray-200/50">
-          <div
-            v-for="invoice in invoices"
-            :key="invoice.btcpay_id"
-            class="border-t border-gray-200/50 pt-4 first:border-t-0 first:pt-0"
-          >
-            <div class="flex items-center justify-between">
-              <div class="space-y-1">
-                <div class="font-medium text-gray-800">
-                  {{ invoice.plan_type.charAt(0).toUpperCase() + invoice.plan_type.slice(1) }} Plan
-                  ({{ invoice.billing_cycle }})
-                </div>
-                <div class="text-sm text-gray-500 flex items-center space-x-2">
-                  <span>{{ new Date(invoice.created_at).toLocaleString() }}</span>
-                  <span>•</span>
-                  <div class="flex items-center space-x-1">
-                    <div class="w-4 h-4 rounded-full flex items-center justify-center" style="background-color: #F7931A">
-                      <Bitcoin class="w-2.5 h-2.5 text-white" />
+          <!-- Error State -->
+          <div v-else-if="invoiceError" class="text-center py-12">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <XCircle class="h-6 w-6 text-red-600" />
+            </div>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Failed to load payment history</h3>
+            <p class="mt-1 text-sm text-gray-500">{{ invoiceError }}</p>
+          </div>
+
+          <!-- Invoice List -->
+          <div v-else-if="invoices.length" class="overflow-x-auto">
+            <div class="min-w-[500px] divide-y divide-gray-200/50">
+              <div v-for="invoice in invoices" :key="invoice.btcpay_id"
+                class="border-t border-gray-200/50 pt-4 first:border-t-0 first:pt-0">
+                <div class="flex items-center justify-between">
+                  <div class="space-y-1">
+                    <div class="font-medium text-gray-800">
+                      {{ invoice.plan_type.charAt(0).toUpperCase() + invoice.plan_type.slice(1) }} Plan
+                      ({{ invoice.billing_cycle }})
                     </div>
-                    <span>Bitcoin</span>
+                    <div class="text-sm text-gray-500 flex items-center space-x-2">
+                      <span>{{ new Date(invoice.created_at).toLocaleString() }}</span>
+                      <span>•</span>
+                      <div class="flex items-center space-x-1">
+                        <div class="w-4 h-4 rounded-full flex items-center justify-center"
+                          style="background-color: #F7931A">
+                          <Bitcoin class="w-2.5 h-2.5 text-white" />
+                        </div>
+                        <span>Bitcoin</span>
+                      </div>
+                      <span>•</span>
+                      <span>ID: {{ invoice.btcpay_id }}</span>
+                    </div>
                   </div>
-                  <span>•</span>
-                  <span>ID: {{ invoice.btcpay_id }}</span>
+                  <div class="flex items-center space-x-3">
+                    <span class="font-medium">${{ invoice.amount_usd }}</span>
+                    <span class="px-2 py-1 text-sm rounded" :class="invoice.status === 'paid' || invoice.status === 'new'
+                      ? 'bg-green-100/60 text-green-600'
+                      : 'bg-red-100/60 text-red-600'">
+                      {{ invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1) }}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div class="flex items-center space-x-3">
-                <span class="font-medium">${{ invoice.amount_usd }}</span>
-                <span
-                  class="px-2 py-1 text-sm rounded"
-                  :class="invoice.status === 'paid' || invoice.status === 'new'
-                    ? 'bg-green-100/60 text-green-600'
-                    : 'bg-red-100/60 text-red-600'"
-                >
-                  {{ invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1) }}
-                </span>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Empty State -->
-        <div v-else class="text-center py-12">
-          <Bitcoin class="mx-auto h-12 w-12 text-gray-400" />
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No payment history</h3>
-          <p class="mt-1 text-sm text-gray-500">
-            Your payment history will appear here after your first transaction.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error Message -->
-    <div v-if="error" class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">
-            Payment System Notice
-          </h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <p>{{ error.error }}</p>
-            <p v-if="error.details" class="mt-2 text-xs font-mono bg-yellow-100 p-2 rounded">
-              {{ error.details }}
+          <!-- Empty State -->
+          <div v-else class="text-center py-12">
+            <Bitcoin class="mx-auto h-12 w-12 text-gray-400" />
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No payment history</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Your payment history will appear here after your first transaction.
             </p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Plans Grid -->
-    <div class="grid md:grid-cols-3 gap-8">
-      <!-- Starter Plan -->
-      <div
-        class="flex flex-col rounded-lg border transition-all duration-300 overflow-hidden hover:shadow-lg hover:scale-102 bg-blue-50"
-      >
-        <div class="bg-blue-100 p-4">
-          <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center space-x-3">
-              <Shield class="h-10 w-10 text-blue-600" />
-              <div>
-                <h3 class="text-xl font-bold text-gray-800">Starter</h3>
-                <p class="text-sm text-gray-600">For brands just getting started</p>
-              </div>
-            </div>
-            <span class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-200 text-blue-800">
-              Launch
-            </span>
+      <!-- Error Message -->
+      <div v-if="error" class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd" />
+            </svg>
           </div>
-        </div>
-
-        <div class="flex-grow p-4">
-          <div class="text-center mb-6">
-            <div class="text-4xl font-bold mb-4 text-gray-900">
-              ${{ billingCycle === 'annually' ? '199' : '249' }}
-              <span class="text-base font-normal text-gray-600">/month</span>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-yellow-800">
+              Payment System Notice
+            </h3>
+            <div class="mt-2 text-sm text-yellow-700">
+              <p>{{ error.error }}</p>
+              <p v-if="error.details" class="mt-2 text-xs font-mono bg-yellow-100 p-2 rounded">
+                {{ error.details }}
+              </p>
             </div>
-            <div v-if="billingCycle === 'annually'" class="text-xs text-gray-500 -mt-1">
-              (billed annually)
-            </div>
-            <div class="mb-2"></div>
-            <template v-if="billingCycle === 'annually'">
-              <div class="text-sm text-gray-500">
-                <span class="line-through">${{ planPrices.starter.monthly }}/month</span> when paying monthly
-              </div>
-            </template>
-            <template v-else>
-              <div class="text-sm text-gray-500">
-                ${{ planPrices.starter.annually }}/month when billed annually
-              </div>
-            </template>
-            <div class="text-base font-bold text-green-600 mt-1">
-              {{ billingCycle === 'annually'
-                ? 'Save $600/year'
-                : 'Switch to annual billing to save $600'
-              }}
-            </div>
-          </div>
-
-          <div class="mb-6 px-2">
-            <div class="text-center mb-4">
-              <button
-                @click="toggleFeatures('starter')"
-                class="text-sm text-blue-600 hover:text-blue-700 focus:outline-none inline-flex items-center space-x-1"
-              >
-                <span>{{ expandedFeatures.starter ? 'Show Less' : 'Show All Features' }}</span>
-                <ChevronDown
-                  class="h-4 w-4 transition-transform duration-200"
-                  :class="{ 'transform rotate-180': expandedFeatures.starter }"
-                />
-              </button>
-            </div>
-            <ul
-              class="space-y-4 text-base overflow-hidden transition-all duration-300"
-              :style="{ maxHeight: expandedFeatures.starter ? '1000px' : '140px' }"
-            >
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
-                <span class="text-gray-700 font-semibold">Review scanning every 24 hours</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
-                <span class="text-gray-700">Track up to 5 keywords</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
-                <span class="text-gray-700">Monitor 5 major cannabis platforms</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
-                <span class="text-gray-700">Email alerts for reviews</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
-                <span class="text-gray-700">Basic analytics</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
-                <span class="text-gray-700">Standard email support</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <div class="px-6">
-            <img
-              :src="starterIllustration"
-              alt="Starter plan features illustration"
-              class="max-w-[250px] h-auto mx-auto block opacity-60"
-              :class="{
-                '[filter:hue-rotate(90deg)_saturate(200%)_brightness(1.3)]': true
-              }"
-            />
-          </div>
-          <div class="px-6 py-3">
-            <button
-              @click="handleUpgrade('starter', billingCycle)"
-              :disabled="isLoading"
-              class="block w-full py-3 text-center rounded-lg text-lg font-semibold transition-colors bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <span v-if="isLoading">Processing...</span>
-              <span v-else>Get Started</span>
-            </button>
           </div>
         </div>
       </div>
 
-      <!-- Essential Plan -->
-      <div
-        class="flex flex-col rounded-lg border border-yellow-300 border-2 shadow-lg bg-yellow-50 transition-all duration-300 overflow-hidden hover:shadow-lg hover:scale-102"
-      >
-        <div class="bg-yellow-100 p-4">
-          <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center space-x-3">
-              <Leaf class="h-10 w-10 text-yellow-600" />
-              <div>
-                <h3 class="text-xl font-bold text-gray-800">Essential</h3>
-                <p class="text-sm text-gray-600">For those ready to grow</p>
+      <!-- Plans Grid -->
+      <div class="grid max-sm:grid-cols-1 max-md:grid-cols-2 min-[980px]:grid-cols-2 xl:grid-cols-3 gap-8">
+        <!-- Starter Plan -->
+        <div
+          class="flex flex-col rounded-lg border transition-all duration-300 overflow-hidden hover:shadow-lg hover:scale-102 bg-blue-50">
+          <div class="bg-blue-100 p-4">
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center space-x-3">
+                <Shield class="h-10 w-10 text-blue-600" />
+                <div>
+                  <h3 class="text-xl font-bold text-gray-800">Starter</h3>
+                  <p class="text-sm text-gray-600">For brands just getting started</p>
+                </div>
               </div>
-            </div>
-            <span class="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-400 text-yellow-800">
-              Growth
-            </span>
-          </div>
-        </div>
-        
-        <div class="flex-grow p-4">
-          <div class="text-center mb-6">
-            <div class="text-3xl font-bold mb-4 text-gray-900">
-              ${{ billingCycle === 'annually' ? '399' : '499' }}
-              <span class="text-base font-normal text-gray-600">/month</span>
-            </div>
-            <div v-if="billingCycle === 'annually'" class="text-xs text-gray-500 -mt-1">
-              (billed annually)
-            </div>
-            <template v-if="billingCycle === 'annually'">
-              <div class="text-sm text-gray-500">
-                <span class="line-through">${{ planPrices.essential.monthly }}/month</span> when paying monthly
-              </div>
-            </template>
-            <template v-else>
-              <div class="text-sm text-gray-500">
-                ${{ planPrices.essential.annually }}/month when billed annually
-              </div>
-            </template>
-            <div class="text-base font-bold text-green-600 mt-1">
-              {{ billingCycle === 'annually'
-                ? 'Save $1,200/year'
-                : 'Switch to annual billing to save $1,200'
-              }}
+              <span class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-200 text-blue-800">
+                Launch
+              </span>
             </div>
           </div>
 
-          <div class="mb-6 px-2">
-            <div class="text-center mb-4">
-              <button
-                @click="toggleFeatures('essential')"
-                class="text-sm text-yellow-600 hover:text-yellow-700 focus:outline-none inline-flex items-center space-x-1"
-              >
-                <span>{{ expandedFeatures.essential ? 'Show Less' : 'Show All Features' }}</span>
-                <ChevronDown
-                  class="h-4 w-4 transition-transform duration-200"
-                  :class="{ 'transform rotate-180': expandedFeatures.essential }"
-                />
+          <div class="flex-grow p-4">
+            <div class="text-center mb-6">
+              <div class="text-4xl font-bold mb-4 text-gray-900">
+                ${{ billingCycle === 'annually' ? '199' : '249' }}
+                <span class="text-base font-normal text-gray-600">/month</span>
+              </div>
+              <div v-if="billingCycle === 'annually'" class="text-xs text-gray-500 -mt-1">
+                (billed annually)
+              </div>
+              <div class="mb-2"></div>
+              <template v-if="billingCycle === 'annually'">
+                <div class="text-sm text-gray-500">
+                  <span class="line-through">${{ planPrices.starter.monthly }}/month</span> when paying monthly
+                </div>
+              </template>
+              <template v-else>
+                <div class="text-sm text-gray-500">
+                  ${{ planPrices.starter.annually }}/month when billed annually
+                </div>
+              </template>
+              <div class="text-base font-bold text-green-600 mt-1">
+                {{ billingCycle === 'annually'
+                  ? 'Save $600/year'
+                  : 'Switch to annual billing to save $600'
+                }}
+              </div>
+            </div>
+
+            <div class="mb-6 px-2">
+              <div class="text-center mb-4">
+                <button @click="toggleFeatures('starter')"
+                  class="text-sm text-blue-600 hover:text-blue-700 focus:outline-none inline-flex items-center space-x-1">
+                  <span>{{ expandedFeatures.starter ? 'Show Less' : 'Show All Features' }}</span>
+                  <ChevronDown class="h-4 w-4 transition-transform duration-200"
+                    :class="{ 'transform rotate-180': expandedFeatures.starter }" />
+                </button>
+              </div>
+              <ul class="space-y-4 text-base overflow-hidden transition-all duration-300"
+                :style="{ maxHeight: expandedFeatures.starter ? '1000px' : '140px' }">
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
+                  <span class="text-gray-700 font-semibold">Review scanning every 24 hours</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
+                  <span class="text-gray-700">Track up to 5 keywords</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
+                  <span class="text-gray-700">Monitor 5 major cannabis platforms</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
+                  <span class="text-gray-700">Email alerts for reviews</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
+                  <span class="text-gray-700">Basic analytics</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-blue-500" />
+                  <span class="text-gray-700">Standard email support</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <div class="px-6">
+              <img :src="starterIllustration" alt="Starter plan features illustration"
+                class="max-w-[250px] h-auto mx-auto block opacity-60" :class="{
+                  '[filter:hue-rotate(90deg)_saturate(200%)_brightness(1.3)]': true
+                }" />
+            </div>
+            <div class="px-6 py-3">
+              <button @click="handleUpgrade('starter', billingCycle)" :disabled="isLoading"
+                class="block w-full py-3 text-center rounded-lg text-lg font-semibold transition-colors bg-blue-600 hover:bg-blue-700 text-white">
+                <span v-if="isLoading">Processing...</span>
+                <span v-else>Get Started</span>
               </button>
             </div>
-            <ul
-              class="space-y-4 text-base overflow-hidden transition-all duration-300"
-              :style="{ maxHeight: expandedFeatures.essential ? '1000px' : '140px' }"
-            >
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700 font-semibold">Review scanning every 12 hours</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700">Track up to 10 keywords</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700">Monitor top 10 cannabis platforms</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700">Email alerts for reviews</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700">Basic analytics with CSV export</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700">Automated forum posting</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
-                <span class="text-gray-700">Priority email support</span>
-              </li>
-            </ul>
           </div>
         </div>
 
-        <div>
-          <div class="px-6">
-            <img
-              :src="essentialIllustration"
-              alt="Essential plan features illustration"
-              class="max-w-[250px] h-auto mx-auto block opacity-60"
-              :class="{
-                '[filter:hue-rotate(240deg)_saturate(200%)_brightness(1.2)]': true
-              }"
-            />
-          </div>
-          <div class="px-6 py-3">
-            <button
-              @click="handleUpgrade('essential', billingCycle)"
-              :disabled="isLoading"
-              class="block w-full py-3 text-center rounded-lg text-lg font-semibold transition-colors bg-yellow-400 hover:bg-yellow-500 text-yellow-900"
-            >
-              <span v-if="isLoading">Processing...</span>
-              <span v-else>Upgrade Now</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Advanced Plan -->
-      <div
-        class="flex flex-col rounded-lg border transition-all duration-300 overflow-hidden hover:shadow-lg hover:scale-102 bg-green-50"
-      >
-        <div class="bg-green-100 p-4">
-          <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center space-x-3">
-              <Zap class="h-10 w-10 text-green-600" />
-              <div>
-                <h3 class="text-xl font-bold text-gray-800">Advanced</h3>
-                <p class="text-sm text-gray-600">For established market leaders</p>
+        <!-- Essential Plan -->
+        <div
+          class="flex flex-col rounded-lg border-yellow-300 border-2 shadow-lg bg-yellow-50 transition-all duration-300 overflow-hidden hover:shadow-lg hover:scale-102">
+          <div class="bg-yellow-100 p-4">
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center space-x-3">
+                <Leaf class="h-10 w-10 text-yellow-600" />
+                <div>
+                  <h3 class="text-xl font-bold text-gray-800">Essential</h3>
+                  <p class="text-sm text-gray-600">For those ready to grow</p>
+                </div>
               </div>
-            </div>
-            <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-200 text-green-800">
-              Scale
-            </span>
-          </div>
-        </div>
-
-        <div class="flex-grow p-4">
-          <div class="text-center mb-6">
-            <div class="text-4xl font-bold mb-4 text-gray-900">
-              ${{ billingCycle === 'annually' ? '799' : '999' }}
-              <span class="text-base font-normal text-gray-600">/month</span>
-            </div>
-            <div v-if="billingCycle === 'annually'" class="text-xs text-gray-500 -mt-1">
-              (billed annually)
-            </div>
-            <template v-if="billingCycle === 'annually'">
-              <div class="text-sm text-gray-500">
-                <span class="line-through">${{ planPrices.advanced.monthly }}/month</span> when paying monthly
-              </div>
-            </template>
-            <template v-else>
-              <div class="text-sm text-gray-500">
-                ${{ planPrices.advanced.annually }}/month when billed annually
-              </div>
-            </template>
-            <div class="text-base font-bold text-green-600 mt-1">
-              {{ billingCycle === 'annually'
-                ? 'Save $2,400/year'
-                : 'Switch to annual billing to save $2,400'
-              }}
+              <span class="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-400 text-yellow-800">
+                Growth
+              </span>
             </div>
           </div>
 
-          <div class="mb-6 px-2">
-            <div class="text-center mb-4">
-              <button
-                @click="toggleFeatures('advanced')"
-                class="text-sm text-green-600 hover:text-green-700 focus:outline-none inline-flex items-center space-x-1"
-              >
-                <span>{{ expandedFeatures.advanced ? 'Show Less' : 'Show All Features' }}</span>
-                <ChevronDown
-                  class="h-4 w-4 transition-transform duration-200"
-                  :class="{ 'transform rotate-180': expandedFeatures.advanced }"
-                />
+          <div class="flex-grow p-4">
+            <div class="text-center mb-6">
+              <div class="text-3xl font-bold mb-4 text-gray-900">
+                ${{ billingCycle === 'annually' ? '399' : '499' }}
+                <span class="text-base font-normal text-gray-600">/month</span>
+              </div>
+              <div v-if="billingCycle === 'annually'" class="text-xs text-gray-500 -mt-1">
+                (billed annually)
+              </div>
+              <template v-if="billingCycle === 'annually'">
+                <div class="text-sm text-gray-500">
+                  <span class="line-through">${{ planPrices.essential.monthly }}/month</span> when paying monthly
+                </div>
+              </template>
+              <template v-else>
+                <div class="text-sm text-gray-500">
+                  ${{ planPrices.essential.annually }}/month when billed annually
+                </div>
+              </template>
+              <div class="text-base font-bold text-green-600 mt-1">
+                {{ billingCycle === 'annually'
+                  ? 'Save $1,200/year'
+                  : 'Switch to annual billing to save $1,200'
+                }}
+              </div>
+            </div>
+
+            <div class="mb-6 px-2">
+              <div class="text-center mb-4">
+                <button @click="toggleFeatures('essential')"
+                  class="text-sm text-yellow-600 hover:text-yellow-700 focus:outline-none inline-flex items-center space-x-1">
+                  <span>{{ expandedFeatures.essential ? 'Show Less' : 'Show All Features' }}</span>
+                  <ChevronDown class="h-4 w-4 transition-transform duration-200"
+                    :class="{ 'transform rotate-180': expandedFeatures.essential }" />
+                </button>
+              </div>
+              <ul class="space-y-4 text-base overflow-hidden transition-all duration-300"
+                :style="{ maxHeight: expandedFeatures.essential ? '1000px' : '140px' }">
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700 font-semibold">Review scanning every 12 hours</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700">Track up to 10 keywords</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700">Monitor top 10 cannabis platforms</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700">Email alerts for reviews</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700">Basic analytics with CSV export</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700">Automated forum posting</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-yellow-500" />
+                  <span class="text-gray-700">Priority email support</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <div class="px-6">
+              <img :src="essentialIllustration" alt="Essential plan features illustration"
+                class="max-w-[250px] h-auto mx-auto block opacity-60" :class="{
+                  '[filter:hue-rotate(240deg)_saturate(200%)_brightness(1.2)]': true
+                }" />
+            </div>
+            <div class="px-6 py-3">
+              <button @click="handleUpgrade('essential', billingCycle)" :disabled="isLoading"
+                class="block w-full py-3 text-center rounded-lg text-lg font-semibold transition-colors bg-yellow-400 hover:bg-yellow-500 text-yellow-900">
+                <span v-if="isLoading">Processing...</span>
+                <span v-else>Upgrade Now</span>
               </button>
             </div>
-            <ul
-              class="space-y-4 text-base overflow-hidden transition-all duration-300"
-              :style="{ maxHeight: expandedFeatures.advanced ? '1000px' : '140px' }"
-            >
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700 font-semibold">Review scanning every 6 hours</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">Track up to 25 keywords</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">Monitor all cannabis platforms</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">Email & push alerts for reviews</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">Advanced analytics with CSV/PDF exports</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">AI chat assistant</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">Automated forum posting</span>
-              </li>
-              <li class="flex items-center">
-                <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
-                <span class="text-gray-700">Priority live chat support</span>
-              </li>
-            </ul>
           </div>
         </div>
 
-        <div>
-          <div class="px-6">
-            <img
-              :src="advancedIllustration"
-              alt="Advanced plan features illustration"
-              class="max-w-[250px] h-auto mx-auto block opacity-60"
-            />
+        <!-- Advanced Plan -->
+        <div
+          class="flex flex-col rounded-lg border transition-all duration-300 overflow-hidden hover:shadow-lg hover:scale-102 bg-green-50">
+          <div class="bg-green-100 p-4">
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center space-x-3">
+                <Zap class="h-10 w-10 text-green-600" />
+                <div>
+                  <h3 class="text-xl font-bold text-gray-800">Advanced</h3>
+                  <p class="text-sm text-gray-600">For established market leaders</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-200 text-green-800">
+                Scale
+              </span>
+            </div>
           </div>
-          <div class="px-6 py-3">
-            <button
-              @click="handleUpgrade('advanced', billingCycle)"
-              :disabled="isLoading"
-              class="block w-full py-3 text-center rounded-lg text-lg font-semibold transition-colors bg-green-600 hover:bg-green-700 text-white"
-            >
-              <span v-if="isLoading">Processing...</span>
-              <span v-else>Get Started</span>
-            </button>
+
+          <div class="flex-grow p-4">
+            <div class="text-center mb-6">
+              <div class="text-4xl font-bold mb-4 text-gray-900">
+                ${{ billingCycle === 'annually' ? '799' : '999' }}
+                <span class="text-base font-normal text-gray-600">/month</span>
+              </div>
+              <div v-if="billingCycle === 'annually'" class="text-xs text-gray-500 -mt-1">
+                (billed annually)
+              </div>
+              <template v-if="billingCycle === 'annually'">
+                <div class="text-sm text-gray-500">
+                  <span class="line-through">${{ planPrices.advanced.monthly }}/month</span> when paying monthly
+                </div>
+              </template>
+              <template v-else>
+                <div class="text-sm text-gray-500">
+                  ${{ planPrices.advanced.annually }}/month when billed annually
+                </div>
+              </template>
+              <div class="text-base font-bold text-green-600 mt-1">
+                {{ billingCycle === 'annually'
+                  ? 'Save $2,400/year'
+                  : 'Switch to annual billing to save $2,400'
+                }}
+              </div>
+            </div>
+
+            <div class="mb-6 px-2">
+              <div class="text-center mb-4">
+                <button @click="toggleFeatures('advanced')"
+                  class="text-sm text-green-600 hover:text-green-700 focus:outline-none inline-flex items-center space-x-1">
+                  <span>{{ expandedFeatures.advanced ? 'Show Less' : 'Show All Features' }}</span>
+                  <ChevronDown class="h-4 w-4 transition-transform duration-200"
+                    :class="{ 'transform rotate-180': expandedFeatures.advanced }" />
+                </button>
+              </div>
+              <ul class="space-y-4 text-base overflow-hidden transition-all duration-300"
+                :style="{ maxHeight: expandedFeatures.advanced ? '1000px' : '140px' }">
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700 font-semibold">Review scanning every 6 hours</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">Track up to 25 keywords</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">Monitor all cannabis platforms</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">Email & push alerts for reviews</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">Advanced analytics with CSV/PDF exports</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">AI chat assistant</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">Automated forum posting</span>
+                </li>
+                <li class="flex items-center">
+                  <Check class="h-5 w-5 mr-2 flex-shrink-0 text-green-500" />
+                  <span class="text-gray-700">Priority live chat support</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <div class="px-6">
+              <img :src="advancedIllustration" alt="Advanced plan features illustration"
+                class="max-w-[250px] h-auto mx-auto block opacity-60" />
+            </div>
+            <div class="px-6 py-3">
+              <button @click="handleUpgrade('advanced', billingCycle)" :disabled="isLoading"
+                class="block w-full py-3 text-center rounded-lg text-lg font-semibold transition-colors bg-green-600 hover:bg-green-700 text-white">
+                <span v-if="isLoading">Processing...</span>
+                <span v-else>Get Started</span>
+              </button>
+            </div>
           </div>
         </div>
+
       </div>
-
-    </div>
 
       <!-- BTCPay Modal -->
-      <BTCPayModal
-        v-if="currentInvoice && showModal"
-        :show="true"
-        :invoice-url="currentInvoice.url"
-        :plan-type="currentInvoice.planType"
-        :amount="currentInvoice.amount"
-        :loading="isLoading"
-        @close="handleModalClose"
-      />
+      <BTCPayModal v-if="currentInvoice && showModal" :show="true" :invoice-url="currentInvoice.url"
+        :plan-type="currentInvoice.planType" :amount="currentInvoice.amount" :loading="isLoading"
+        @close="handleModalClose" />
     </div>
   </div>
 </template>

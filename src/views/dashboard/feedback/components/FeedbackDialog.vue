@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { useFeedback } from '../composables/useFeedback'
 import type { FeedbackStatus } from '@/services/feedback'
+import { X } from 'lucide-vue-next'
 
 const store = useFeedback()
 const messagesContainer = ref<HTMLElement | null>(null)
@@ -56,31 +57,31 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   const now = new Date()
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  
+
   if (diffInSeconds < 60) {
     return 'just now'
   }
-  
+
   const diffInMinutes = Math.floor(diffInSeconds / 60)
   if (diffInMinutes < 60) {
     return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInHours = Math.floor(diffInMinutes / 60)
   if (diffInHours < 24) {
     return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInDays = Math.floor(diffInHours / 24)
   if (diffInDays < 30) {
     return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInMonths = Math.floor(diffInDays / 30)
   if (diffInMonths < 12) {
     return `${diffInMonths} month${diffInMonths === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInYears = Math.floor(diffInDays / 365)
   return `${diffInYears} year${diffInYears === 1 ? '' : 's'} ago`
 }
@@ -119,32 +120,39 @@ const getStatusClass = (status: FeedbackStatus) => {
 </script>
 
 <template>
-  <Dialog v-model:open="isOpen">
-    <DialogContent class="sm:max-w-[600px] bg-white">
-      <DialogHeader class="border-b border-gray-100 pb-4">
-        <DialogTitle class="text-xl text-green-800">Feedback Details</DialogTitle>
-        <DialogDescription class="text-gray-500">
-          View your feedback and conversation with our team.
-        </DialogDescription>
+  <Dialog v-model:open="isOpen" class="z-[9999]">
+    <DialogContent class="w-full max-w-[95vw] sm:max-w-[600px] bg-white max-h-[90vh] flex flex-col overflow-y-auto">
+      <DialogHeader class="border-b flex !flex-row items-center justify-between border-gray-100 pb-4 gap-2">
+        <!-- Title and Description on the Left -->
+        <div class="flex flex-col">
+          <DialogTitle class="text-xl text-start text-green-800">Feedback Details</DialogTitle>
+          <DialogDescription class="text-gray-500 text-start">
+            View your feedback and conversation with our team.
+          </DialogDescription>
+        </div>
+
+        <!-- Close Button on the Right -->
+        <Button variant="ghost" @click="close">
+          <X />
+        </Button>
       </DialogHeader>
-      
-      <div v-if="selectedItem" class="py-6 space-y-6">
+
+
+      <div v-if="selectedItem" class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
         <!-- Original Feedback -->
         <div class="space-y-4">
-          <div class="grid grid-cols-4 items-start gap-4">
-            <Label class="text-right text-sm font-medium text-gray-600">Status</Label>
+          <div class="grid grid-cols-4 gap-4">
+            <Label class="text-sm font-bold text-gray-600">Status</Label>
             <div class="col-span-3">
-              <span 
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
-                :class="getStatusClass(selectedItem.status)"
-              >
+              <span class="inline-flex items-center px-3 py-2 rounded-full text-xs font-medium capitalize"
+                :class="getStatusClass(selectedItem.status)">
                 {{ selectedItem.status }}
               </span>
             </div>
           </div>
-          <div class="grid grid-cols-4 items-start gap-4">
-            <Label class="text-right text-sm font-medium text-gray-600">Message</Label>
-            <div class="col-span-3 text-gray-900 space-y-1">
+          <div class="grid grid-cols-4 gap-4">
+            <Label class="text-sm font-bold text-gray-600">Message</Label>
+            <div class="col-span-3 text-gray-900">
               <template v-if="selectedItem.message.includes('Type:')">
                 <!-- Parse message and display just type and description -->
                 <div class="space-y-3">
@@ -162,19 +170,15 @@ const getStatusClass = (status: FeedbackStatus) => {
               </template>
             </div>
           </div>
-          <div class="grid grid-cols-4 items-start gap-4">
-            <Label class="text-right text-sm font-medium text-gray-600">Date</Label>
+          <div class="grid grid-cols-4 gap-4">
+            <Label class="text-sm font-bold text-gray-600">Date</Label>
             <div class="col-span-3 text-gray-900">{{ formatDate(selectedItem.created_at) }}</div>
           </div>
           <div v-if="selectedItem.attachment" class="grid grid-cols-4 items-start gap-4">
             <Label class="text-right text-sm font-medium text-gray-600">Attachment</Label>
             <div class="col-span-3">
-              <a 
-                :href="selectedItem.attachment"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-blue-600 hover:text-blue-800"
-              >
+              <a :href="selectedItem.attachment" target="_blank" rel="noopener noreferrer"
+                class="text-blue-600 hover:text-blue-800">
                 View Attachment
               </a>
             </div>
@@ -182,35 +186,27 @@ const getStatusClass = (status: FeedbackStatus) => {
         </div>
 
         <!-- Conversation Thread -->
-        <div class="border-t border-gray-100 pt-6 flex flex-col" style="height: 60vh">
+        <div class="border-t border-gray-100 pt-6 flex flex-col h-[50vh]">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Conversation</h3>
-          
+
           <!-- Scrollable Messages Container -->
           <div class="flex-1 overflow-y-auto mb-4" ref="messagesContainer">
             <!-- Empty State -->
             <div v-if="!selectedItem.replies.length" class="text-center py-4 text-gray-500">
               No replies yet. Start the conversation by sending a message.
             </div>
-            
+
             <!-- Replies List -->
             <div v-else class="space-y-4 px-1">
-              <div 
-                v-for="reply in selectedItem.replies" 
-                :key="reply.id"
-                class="p-4 rounded-lg"
-                :class="[
-                  reply.is_admin 
-                    ? 'bg-green-50 border border-green-100' 
-                    : 'bg-gray-50 border border-gray-100'
-                ]"
-              >
+              <div v-for="reply in selectedItem.replies" :key="reply.id" class="p-4 rounded-lg" :class="[
+                reply.is_admin
+                  ? 'bg-green-50 border border-green-100'
+                  : 'bg-gray-50 border border-gray-100'
+              ]">
                 <div class="flex justify-between items-start mb-2">
-                  <span 
-                    class="font-medium"
-                    :class="[
-                      reply.is_admin ? 'text-green-700' : 'text-gray-700'
-                    ]"
-                  >
+                  <span class="font-medium" :class="[
+                    reply.is_admin ? 'text-green-700' : 'text-gray-700'
+                  ]">
                     {{ reply.user }}
                     <span v-if="reply.is_admin" class="text-xs ml-2 text-green-600">(Admin)</span>
                   </span>
@@ -224,19 +220,12 @@ const getStatusClass = (status: FeedbackStatus) => {
           </div>
 
           <!-- Reply Form - Fixed at Bottom -->
-          <div class="border-t border-gray-100 pt-4 bg-white">
-            <Textarea
-              v-model="replyMessage"
-              placeholder="Type your reply..."
-              class="w-full min-h-[100px] resize-none"
-            />
-            <div class="flex justify-end">
-              <Button
-                type="button"
-                class="bg-green-600 hover:bg-green-700 text-white"
-                :disabled="!replyMessage.trim() || isSubmittingReply"
-                @click="submitReply"
-              >
+          <div class="border-t border-gray-100 pt-6">
+            <textarea v-model="replyMessage" placeholder="Type your reply..."
+              class="w-full min-h-[100px] resize-none px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-50 disabled:cursor-not-allowed" />
+            <div class="flex justify-end mt-2">
+              <Button type="button" class="bg-green-600 hover:bg-green-700 text-white"
+                :disabled="!replyMessage.trim() || isSubmittingReply" @click="submitReply">
                 <template v-if="isSubmittingReply">
                   <Loader2 class="mr-2 h-4 w-4 animate-spin" />
                   Sending...
@@ -249,15 +238,7 @@ const getStatusClass = (status: FeedbackStatus) => {
           </div>
         </div>
       </div>
-
-      <div class="flex justify-end space-x-4 pt-6 border-t border-gray-100">
-        <Button
-          variant="outline"
-          @click="close"
-        >
-          Close
-        </Button>
-      </div>
     </DialogContent>
+
   </Dialog>
 </template>

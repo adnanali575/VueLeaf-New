@@ -1,318 +1,256 @@
 <template>
-  <div class="flex-1 p-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex flex-col space-y-6">
-        <!-- Welcome Section -->
-        <div class="mb-8 bg-white rounded-lg shadow-sm p-6">
-          <div class="flex flex-col md:flex-row items-center gap-6">
-            <div class="flex-1">
-              <h1 class="text-xl md:text-2xl font-medium text-green-800 mb-2">
-                Brand Reports
-              </h1>
-              <p class="text-gray-600 text-lg">
-                Export detailed reports to gain valuable insights into your brand's online presence and performance. Generate custom reports covering sentiment analysis, engagement metrics, competitor data, and market trends. These reports help you track growth, identify opportunities, and make data-driven decisions. Select your preferred format and date range to create reports that serve your specific business needs.
-              </p>
-            </div>
-            <div class="w-48 h-48 flex-shrink-0 relative">
-              <img
-                src="/src/assets/images/dashboard/task-management.png"
-                alt="Team analyzing reports and data"
-                class="w-full h-full object-contain"
-              />
-            </div>
+  <div class="flex-1 p-2 md:p-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-8">
+      <!-- Welcome Section -->
+      <div class="mb-8 bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div class="flex flex-col md:flex-row items-center gap-6">
+          <div class="flex-1 text-center md:text-left">
+            <h1 class="text-lg md:text-2xl font-medium text-green-800 mb-2 text-center md:text-left">
+              Brand Reports
+            </h1>
+            <p class="text-gray-600 text-sm sm:text-md md:text-lg">
+              Export detailed reports to gain valuable insights into your brand's online presence and performance.
+              Generate custom reports covering sentiment analysis, engagement metrics, competitor data, and market
+              trends. These reports help you track growth, identify opportunities, and make data-driven decisions.
+              Select your preferred format and date range to create reports that serve your specific business needs.
+            </p>
+          </div>
+          <div class="w-full max-w-xs sm:max-w-sm md:w-36 md:h-36 flex-shrink-0 relative">
+            <img src="/src/assets/images/dashboard/task-management.png" alt="Team analyzing reports and data"
+              class="w-full h-full object-contain" />
           </div>
         </div>
+      </div>
 
-        <!-- Error Alert -->
-        <div v-if="reportStore.error" class="mb-4">
-          <Alert variant="destructive">
-            {{ reportStore.error }}
-          </Alert>
-        </div>
+      <!-- Error Alert -->
+      <div v-if="reportStore.error" class="mb-4">
+        <Alert variant="destructive">
+          {{ reportStore.error }}
+        </Alert>
+      </div>
 
-        <!-- Report Content -->
-        <div v-else class="space-y-6">
-          <!-- Filters Card -->
-          <Card>
-            <CardHeader>
-              <CardTitle class="text-lg font-medium text-gray-700">Report Filters</CardTitle>
-              <CardDescription class="text-base">
-                Customize your report by selecting specific date ranges, platforms, and sentiment types to focus your analysis.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Date Range -->
-                <div class="flex flex-col space-y-4 mb-4 md:mb-0">
-                  <div class="flex items-center space-x-2">
-                    <div class="p-2 bg-gray-100 rounded-md">
-                      <Calendar class="h-5 w-5 text-gray-500" />
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
-                      <Input
-                        v-model="filters.startDate"
-                        type="date"
-                        placeholder="Start Date (YYYY-MM-DD)"
-                        class="w-full"
-                        @change="handleFilterUpdate"
-                      />
-                      <Input
-                        v-model="filters.endDate"
-                        type="date"
-                        placeholder="End Date (YYYY-MM-DD)"
-                        class="w-full"
-                        @change="handleFilterUpdate"
-                      />
-                    </div>
-                  </div>
-                </div>
+      <!-- Report Content -->
+      <div v-else class="space-y-6">
+        <!-- Filters Card -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg font-medium text-gray-700">Report Filters</CardTitle>
+            <CardDescription class="text-base">
+              Customize your report by selecting specific date ranges, platforms, and sentiment types to focus your
+              analysis.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+              <!-- Date Range -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input ref="startDateRef" v-model="filters.startDate" @change="handleFilterUpdate" type="date"
+                  placeholder="Start Date (YYYY-MM-DD)"
+                  class="w-full pl-3 pr-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 [direction:rtl] [text-align-last:left] [&::-webkit-calendar-picker-indicator]:ml-0" />
+                <input ref="endDateRef" v-model="filters.endDate" @change="handleFilterUpdate" type="date"
+                  placeholder="End Date (YYYY-MM-DD)"
+                  class="w-full pl-3 pr-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 [direction:rtl] [text-align-last:left] [&::-webkit-calendar-picker-indicator]:ml-0" />
+              </div>
 
-                <!-- Platform Filter -->
-                <div class="flex flex-col space-y-4">
-                  <div class="flex items-center space-x-2">
-                    <div class="p-2 bg-gray-100 rounded-md">
-                      <Globe class="h-5 w-5 text-gray-500" />
-                    </div>
-                    <Select v-model="filters.platform" @update:modelValue="handleFilterUpdate">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a platform" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all-platforms">All Platforms</SelectItem>
-                        <SelectItem
-                          v-for="source in reportStore.availableSources"
-                          :key="source"
-                          :value="source"
-                        >
-                          {{ source.replace(/\.com$/, '').replace(/\./g, ' ') }}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <!-- Keyword Filter -->
-                <div class="flex flex-col space-y-4">
-                  <div class="flex items-center space-x-2">
-                    <div class="p-2 bg-gray-100 rounded-md">
-                      <Search class="h-5 w-5 text-gray-500" />
-                    </div>
-                    <Input
-                      v-model="filters.keyword"
-                      type="text"
-                      placeholder="Filter by keyword"
-                      class="w-full"
-                      @input="handleFilterUpdate"
-                    />
-                  </div>
-                </div>
-
-                <!-- Sentiment Filter -->
-                <div class="flex flex-col space-y-4">
-                  <div class="flex items-center space-x-2">
-                    <div class="p-2 bg-gray-100 rounded-md">
-                      <ThumbsUp class="h-5 w-5 text-gray-500" />
-                    </div>
-                    <Select v-model="filters.sentiment" @update:modelValue="handleFilterUpdate">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a sentiment" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all-sentiments">All Sentiments</SelectItem>
-                        <SelectItem value="positive">Positive</SelectItem>
-                        <SelectItem value="neutral">Neutral</SelectItem>
-                        <SelectItem value="negative">Negative</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <!-- Platform Filter -->
+              <div class="flex flex-col space-y-4">
+                <div class="relative">
+                  <Globe class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none" />
+                  <select v-model="filters.platform" @change="handleFilterUpdate"
+                    class="w-full bg-white border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none">
+                    <option value="all-platforms">All Platforms</option>
+                    <option v-for="source in reportStore.availableSources" :key="source" :value="source">
+                      {{ source.replace(/\.com$/, '').replace(/\./g, ' ') }}
+                    </option>
+                  </select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-          
-          <!-- Report Content Card -->
-          <Card>
-            <CardHeader class="flex flex-row justify-between items-center px-6">
-              <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50">
-                  <FileText class="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <CardTitle class="text-lg font-medium text-gray-700">Report</CardTitle>
-                  <p class="text-base text-gray-500 mt-1">
-                    View and analyze sentiment data across different cannabis community platforms for your brand.
-                  </p>
+
+              <!-- Keyword Filter -->
+              <div class="flex flex-col space-y-4">
+                <div class="relative">
+                  <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none" />
+                  <input v-model="filters.keyword" @input="handleFilterUpdate" type="text"
+                    placeholder="Filter by keyword"
+                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-50 disabled:cursor-not-allowed" />
                 </div>
               </div>
-              <div class="flex space-x-4">
-                <Button
-                  class="bg-yellow-200 text-yellow-800 hover:bg-yellow-300 relative"
-                  @click="handleExport('pdf')"
-                  :disabled="isExporting"
-                >
-                  <LoadingSpinner v-if="isExporting" size="sm" class="absolute left-2" />
-                  <span :class="{ 'pl-6': isExporting }">
-                    Export as PDF
-                  </span>
-                </Button>
-                <Button
-                  class="bg-green-200 text-green-800 hover:bg-green-300 relative"
-                  @click="handleExport('csv')"
-                  :disabled="isExporting"
-                >
-                  <LoadingSpinner v-if="isExporting" size="sm" class="absolute left-2" />
-                  <span :class="{ 'pl-6': isExporting }">
-                    Export as CSV
-                  </span>
-                </Button>
+
+              <!-- Sentiment Filter -->
+              <div class="flex flex-col space-y-4">
+                <div class="relative">
+                  <ThumbsUp
+                    class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none" />
+                  <select v-model="filters.sentiment" @change="handleFilterUpdate"
+                    class="w-full bg-white border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none">
+                    <option value="all-sentiments">All Sentiments</option>
+                    <option value="positive">Positive</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="negative">Negative</option>
+                  </select>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <Tabs v-model="selectedTab">
-                <TabsList class="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-6">
-                  <TabsTrigger value="sentiment">Sentiment Analysis</TabsTrigger>
-                  <TabsTrigger value="sentiment-by-platform">Sentiment by Platform</TabsTrigger>
-                  <TabsTrigger value="source-breakdown">Source Breakdown</TabsTrigger>
-                  <TabsTrigger value="sentiment-trends">Sentiment Trends</TabsTrigger>
-                  <TabsTrigger value="source-distribution">Source Distribution</TabsTrigger>
-                  <TabsTrigger value="keyword-analysis">Keyword Analysis</TabsTrigger>
-                </TabsList>
+            </div>
+          </CardContent>
+        </Card>
 
-                <!-- Tab Content -->
-                <TabsContent value="sentiment">
-                  <Card>
-                    <CardContent class="pt-6">
-                      <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
-                        <LoadingSpinner size="lg" />
-                      </div>
-                      <UnifiedSentimentChart
-                        ref="sentimentChartRef"
-                        v-else-if="reportStore.sentimentData?.data.sentimentScore"
-                        :score="reportStore.sentimentData.data.sentimentScore.value"
-                        :total="analyticsStore.overallStats?.totalMentions ?? 0"
-                        :data="reportStore.sentimentData.data.sentimentCounts ?? []"
-                      />
-                      <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
-                        No sentiment data available
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+        <!-- Report Content Card -->
+        <Card>
+          <CardHeader class="flex flex-row gap-2 max-lg:flex-wrap justify-between items-center px-6">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50">
+                <FileText class="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <CardTitle class="text-lg font-medium text-gray-700">Report</CardTitle>
+                <p class="text-base text-gray-500 mt-1">
+                  View and analyze sentiment data across different cannabis community platforms for your brand.
+                </p>
+              </div>
+            </div>
+            <div class="flex max-lg:justify-center max-lg:w-full space-x-4">
+              <Button class="whitespace-nowrap bg-yellow-200 text-yellow-800 hover:bg-yellow-300 relative"
+                @click="handleExport('pdf')" :disabled="isExporting">
+                <LoadingSpinner v-if="isExporting" size="sm" class="absolute left-2" />
+                <span :class="{ 'pl-6': isExporting }">
+                  Export as PDF
+                </span>
+              </Button>
+              <Button class="whitespace-nowrap bg-green-200 text-green-800 hover:bg-green-300 relative"
+                @click="handleExport('csv')" :disabled="isExporting">
+                <LoadingSpinner v-if="isExporting" size="sm" class="absolute left-2" />
+                <span :class="{ 'pl-6': isExporting }">
+                  Export as CSV
+                </span>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs v-model="selectedTab">
+              <TabsList class="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-6">
+                <TabsTrigger value="sentiment">Sentiment Analysis</TabsTrigger>
+                <TabsTrigger value="sentiment-by-platform">Sentiment by Platform</TabsTrigger>
+                <TabsTrigger value="source-breakdown">Source Breakdown</TabsTrigger>
+                <TabsTrigger value="sentiment-trends">Sentiment Trends</TabsTrigger>
+                <TabsTrigger value="source-distribution">Source Distribution</TabsTrigger>
+                <TabsTrigger value="keyword-analysis">Keyword Analysis</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="sentiment-by-platform">
-                  <Card>
-                    <CardContent class="pt-6">
-                      <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
-                        <LoadingSpinner size="lg" />
-                      </div>
-                      <SentimentChart
-                        ref="platformSentimentChartRef"
-                        v-else-if="reportStore.sentimentData?.data.platformSentiment"
-                        :data="reportStore.sentimentData.data.platformSentiment"
-                        :group-by="'source'"
-                        title="Platform Sentiment Analysis"
-                        description="Breakdown of sentiment across different platforms and sources"
-                      />
-                      <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
-                        No platform sentiment data available
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+              <!-- Tab Content -->
+              <TabsContent value="sentiment">
+                <Card>
+                  <CardContent class="pt-6">
+                    <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <UnifiedSentimentChart ref="sentimentChartRef"
+                      v-else-if="reportStore.sentimentData?.data.sentimentScore"
+                      :score="reportStore.sentimentData.data.sentimentScore.value"
+                      :total="analyticsStore.overallStats?.totalMentions ?? 0"
+                      :data="reportStore.sentimentData.data.sentimentCounts ?? []" />
+                    <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
+                      No sentiment data available
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                <TabsContent value="source-breakdown">
-                  <Card>
-                    <CardContent class="pt-6">
-                      <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
-                        <LoadingSpinner size="lg" />
-                      </div>
-                      <SourceBreakdownChart
-                        ref="sourceBreakdownChartRef"
-                        v-else-if="reportStore.sourceData?.data.sourceCounts"
-                        :data="reportStore.sourceData.data.sourceCounts"
-                        title="Content Source Distribution"
-                        description="Distribution of content across different platforms and sources"
-                      />
-                      <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
-                        No source data available
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+              <TabsContent value="sentiment-by-platform">
+                <Card>
+                  <CardContent class="pt-6">
+                    <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <SentimentChart ref="platformSentimentChartRef"
+                      v-else-if="reportStore.sentimentData?.data.platformSentiment"
+                      :data="reportStore.sentimentData.data.platformSentiment" :group-by="'source'"
+                      title="Platform Sentiment Analysis"
+                      description="Breakdown of sentiment across different platforms and sources" />
+                    <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
+                      No platform sentiment data available
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                <TabsContent value="sentiment-trends">
-                  <Card>
-                    <CardContent class="pt-6">
-                      <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
-                        <LoadingSpinner size="lg" />
-                      </div>
-                      <TrendChart
-                        ref="sentimentTrendChartRef"
-                        v-else-if="reportStore.sentimentData?.data.sentimentTrends"
-                        :data="reportStore.sentimentData.data.sentimentTrends"
-                        :start-date="filters.startDate"
-                        :end-date="filters.endDate"
-                        title="Sentiment Trends Over Time"
-                      />
-                      <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
-                        No trend data available
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+              <TabsContent value="source-breakdown">
+                <Card>
+                  <CardContent class="pt-6">
+                    <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <SourceBreakdownChart ref="sourceBreakdownChartRef"
+                      v-else-if="reportStore.sourceData?.data.sourceCounts"
+                      :data="reportStore.sourceData.data.sourceCounts" title="Content Source Distribution"
+                      description="Distribution of content across different platforms and sources" />
+                    <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
+                      No source data available
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                <TabsContent value="source-distribution">
-                  <Card>
-                    <CardContent class="pt-6">
-                      <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
-                        <LoadingSpinner size="lg" />
-                      </div>
-                      <TrendChart
-                        ref="sourceTrendChartRef"
-                        v-else-if="reportStore.sourceData?.data.sourceTrends"
-                        :data="reportStore.sourceData.data.sourceTrends"
-                        :start-date="filters.startDate"
-                        :end-date="filters.endDate"
-                        title="Source Distribution Over Time"
-                      />
-                      <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
-                        No trend data available
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+              <TabsContent value="sentiment-trends">
+                <Card>
+                  <CardContent class="pt-6">
+                    <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <TrendChart ref="sentimentTrendChartRef"
+                    v-else-if="reportStore.sentimentData?.data.sentimentTrends"
+                      :data="reportStore.sentimentData.data.sentimentTrends" :start-date="filters.startDate"
+                      :end-date="filters.endDate" title="Sentiment Trends Over Time" />
+                    <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
+                      No trend data available
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                <TabsContent value="keyword-analysis">
-                  <Card>
-                    <CardContent class="pt-6">
-                      <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
-                        <LoadingSpinner size="lg" />
-                      </div>
-                      <div v-else-if="reportStore.keywordData?.data.keywords">
-                        <div class="flex flex-col bg-white rounded-lg shadow-sm">
-                          <div class="p-6">
-                            <h3 class="text-xl font-semibold text-green-800 mb-2">Keyword Analysis</h3>
-                            <p class="text-gray-600 mb-4">Analysis of keyword mentions with sentiment breakdown</p>
-                            <KeywordAnalysisGrid :keywords="reportStore.keywordData.data.keywords" />
-                          </div>
+              <TabsContent value="source-distribution">
+                <Card>
+                  <CardContent class="pt-6">
+                    <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <TrendChart ref="sourceTrendChartRef" v-else-if="reportStore.sourceData?.data.sourceTrends"
+                      :data="reportStore.sourceData.data.sourceTrends" :start-date="filters.startDate"
+                      :end-date="filters.endDate" title="Source Distribution Over Time" />
+                    <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
+                      No trend data available
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="keyword-analysis">
+                <Card>
+                  <CardContent class="pt-6">
+                    <div v-if="reportStore.isLoading" class="h-[300px] flex items-center justify-center">
+                      <LoadingSpinner size="lg" />
+                    </div>
+                    <div v-else-if="reportStore.keywordData?.data.keywords">
+                      <div class="flex flex-col bg-white rounded-lg shadow-sm">
+                        <div class="p-6">
+                          <h3 class="text-xl font-semibold text-green-800 mb-2">Keyword Analysis</h3>
+                          <p class="text-gray-600 mb-4">Analysis of keyword mentions with sentiment breakdown</p>
+                          <KeywordAnalysisGrid :keywords="reportStore.keywordData.data.keywords" />
                         </div>
+                      </div>
 
-                        <!-- Insights Panel -->
-                        <InsightPanel
-                          :insights="insightService.analyzeKeywords(reportStore.keywordData.data.keywords)"
-                          class="mt-4"
-                        />
-                      </div>
-                      <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
-                        No keyword data available
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </div>
+                      <!-- Insights Panel -->
+                      <InsightPanel :insights="insightService.analyzeKeywords(reportStore.keywordData.data.keywords)"
+                        class="mt-4" />
+                    </div>
+                    <div v-else class="h-[300px] flex items-center justify-center text-gray-500">
+                      No keyword data available
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   </div>
@@ -403,7 +341,7 @@ const filters = ref<ReportFilter>({
 async function handleFilterUpdate() {
   // Ensure analytics data is fetched first
   await analyticsStore.fetchAnalyticsData()
-  
+
   await Promise.all([
     reportStore.fetchSentimentReport(filters.value),
     reportStore.fetchSourceBreakdown(filters.value),
@@ -414,7 +352,7 @@ async function handleFilterUpdate() {
 async function handleExport(format: 'csv' | 'pdf') {
   try {
     isExporting.value = true
-    
+
     // Collect chart images for PDF export
     const chartImages = new Map<string, ChartExport>()
     if (format === 'pdf') {
@@ -534,7 +472,7 @@ onMounted(async () => {
 
   // Ensure analytics data is fetched before initial data load
   await analyticsStore.fetchAnalyticsData()
-  
+
   // Fetch initial data
   await handleFilterUpdate()
 })

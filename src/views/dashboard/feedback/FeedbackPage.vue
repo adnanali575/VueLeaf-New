@@ -26,8 +26,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex-1 p-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex-1 p-2 md:p-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-8">
       <FeedbackHeader />
       <FeedbackStats />
       <FeedbackForm />

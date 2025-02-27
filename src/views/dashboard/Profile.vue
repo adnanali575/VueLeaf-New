@@ -48,13 +48,13 @@ const failedAvatarUrls = new Set<string>()
 // Handle avatar load errors
 const handleAvatarError = () => {
   if (!avatarRef.value) return
-  
+
   const currentSrc = avatarRef.value.src
-  
+
   // Prevent infinite loops by tracking failed URLs
   if (!failedAvatarUrls.has(currentSrc)) {
     failedAvatarUrls.add(currentSrc)
-    
+
     // Log URL construction details
     const urlDetails = {
       attemptedSrc: currentSrc,
@@ -76,10 +76,10 @@ const handleAvatarError = () => {
     })
 
     console.error('Avatar load failed:', urlDetails)
-    
+
     // Show error message only once
     toast.error('Failed to load avatar image')
-    
+
     // Show default avatar icon
     showDefaultAvatar.value = true
   }
@@ -108,7 +108,7 @@ const handleAvatarUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
     const file = input.files[0]
-    
+
     // Preview
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -121,14 +121,14 @@ const handleAvatarUpload = async (event: Event) => {
     // Upload
     const formData = new FormData()
     formData.append('avatar', file)
-    
+
     try {
       const response = await axios.post('/users/upload_avatar/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
-      
+
       toast.success('Avatar updated successfully')
       // Update auth store with new avatar URL
       authStore.updateAvatar(response.data.avatar_url)
@@ -142,7 +142,7 @@ const handleAvatarUpload = async (event: Event) => {
           fileType: file.type
         }
       })
-      
+
       toast.error('Failed to update avatar')
       avatarPreview.value = null
       showDefaultAvatar.value = true
@@ -216,25 +216,23 @@ onMounted(loadProfile)
 </script>
 
 <template>
-  <div class="flex-1 p-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex-1 p-2 md:p-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 md:py-8">
       <!-- Welcome Section -->
-      <div class="mb-8 bg-white rounded-lg shadow-sm p-6">
-        <div class="flex justify-between items-start">
-          <div class="flex-1">
-            <h1 class="text-xl md:text-2xl font-medium text-green-800 mb-2">
+      <div class="mb-8 bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div class="flex flex-col md:flex-row items-center gap-6">
+          <div class="flex-1 text-center md:text-left">
+            <h1 class="text-lg md:text-2xl font-medium text-green-800 mb-2 text-center md:text-left">
               Profile Settings
             </h1>
-            <p class="text-gray-600 text-lg">
-              Manage your account's essential security settings in one convenient place. Update your email address to ensure you never miss important notifications, and maintain your account's security by regularly updating your password. Your account's security is our priority.
+            <p class="text-gray-600 text-sm sm:text-md md:text-lg">
+              Manage your account's essential security settings in one convenient place. Update your email address to
+              ensure you never miss important notifications, and maintain your account's security by regularly updating
+              your password. Your account's security is our priority.
             </p>
           </div>
-          <div class="w-48 h-48 flex-shrink-0 relative">
-            <img
-              :src="analyticsImage"
-              alt="Profile Settings illustration"
-              class="w-full h-full object-contain"
-            />
+          <div class="w-full max-w-xs sm:max-w-sm md:w-28 md:h-28 flex-shrink-0 relative">
+            <img :src="analyticsImage" alt="Profile Settings illustration" class="w-full h-full object-contain" />
           </div>
         </div>
       </div>
@@ -245,31 +243,20 @@ onMounted(loadProfile)
           <div class="flex items-center space-x-6">
             <div class="relative w-24 h-24">
               <template v-if="!showDefaultAvatar && (avatarPreview || profile.avatar || authStore.avatar)">
-                <img
-                  :src="avatarPreview || getFullAvatarUrl(profile.avatar) || getFullAvatarUrl(authStore.avatar)"
-                  :alt="profile.name"
-                  class="w-24 h-24 rounded-full object-cover border-4 border-green-200"
-                  @error="handleAvatarError"
-                  ref="avatarRef"
-                />
+                <img :src="avatarPreview || getFullAvatarUrl(profile.avatar) || getFullAvatarUrl(authStore.avatar)"
+                  :alt="profile.name" class="w-24 h-24 rounded-full object-cover border-4 border-green-200"
+                  @error="handleAvatarError" ref="avatarRef" />
               </template>
               <template v-else>
-                <div class="w-24 h-24 rounded-full bg-gray-100 border-4 border-green-200 flex items-center justify-center">
+                <div
+                  class="w-24 h-24 rounded-full bg-gray-100 border-4 border-green-200 flex items-center justify-center">
                   <User class="w-12 h-12 text-gray-400" />
                 </div>
               </template>
-              <label
-                for="avatar-upload"
-                class="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50"
-              >
+              <label for="avatar-upload"
+                class="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50">
                 <Upload class="w-4 h-4 text-gray-600" />
-                <input
-                  id="avatar-upload"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleAvatarUpload"
-                />
+                <input id="avatar-upload" type="file" accept="image/*" class="hidden" @change="handleAvatarUpload" />
               </label>
             </div>
             <div>
@@ -280,27 +267,17 @@ onMounted(loadProfile)
           <div class="mt-6 space-y-4">
             <div>
               <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input
-                id="name"
-                v-model="profile.name"
-                type="text"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+              <input id="name" v-model="profile.name" type="text"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 green-outline" />
             </div>
             <div>
               <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                id="email"
-                v-model="profile.email"
-                type="email"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+              <input id="email" v-model="profile.email" type="email"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 green-outline" />
             </div>
-            <button
-              @click="handleSaveProfile"
-              class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              :disabled="saving"
-            >
+            <button @click="handleSaveProfile"
+              class="max-sm:w-full mt-6 inline-flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none green-outline"
+              :disabled="saving">
               <Save class="w-4 h-4 mr-2" />
               {{ saving ? 'Saving...' : 'Save Profile' }}
             </button>
@@ -320,42 +297,30 @@ onMounted(loadProfile)
               <p class="text-base text-gray-500">Update your password to keep your account secure.</p>
             </div>
           </div>
-          
+
           <div class="space-y-4">
             <div>
-              <label for="current-password" class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-              <input
-                id="current-password"
-                v-model="passwordForm.currentPassword"
-                type="password"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+              <label for="current-password" class="block text-sm font-medium text-gray-700 mb-1">Current
+                Password</label>
+              <input id="current-password" v-model="passwordForm.currentPassword" type="password"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 green-outline" />
             </div>
             <div>
               <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-              <input
-                id="new-password"
-                v-model="passwordForm.newPassword"
-                type="password"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+              <input id="new-password" v-model="passwordForm.newPassword" type="password"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 green-outline" />
               <p class="text-sm text-gray-500 mt-1">Password must be at least 8 characters long</p>
             </div>
             <div>
-              <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-              <input
-                id="confirm-password"
-                v-model="passwordForm.confirmPassword"
-                type="password"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+              <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm New
+                Password</label>
+              <input id="confirm-password" v-model="passwordForm.confirmPassword" type="password"
+                class="w-full rounded-md border border-gray-300 px-3 py-2 green-outline" />
             </div>
           </div>
-          <button
-            @click="handleChangePassword"
-            class="mt-6 inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            :disabled="changingPassword"
-          >
+          <button @click="handleChangePassword"
+            class="max-sm:w-full mt-6 inline-flex justify-center items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none green-outline"
+            :disabled="changingPassword">
             <Lock class="w-4 h-4 mr-2" />
             {{ changingPassword ? 'Changing...' : 'Change Password' }}
           </button>

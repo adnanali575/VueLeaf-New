@@ -109,7 +109,7 @@ const toggleBillingCycle = () => {
   <div class="w-full space-y-6">
     <!-- Top Section with Plan Selection Header -->
     <div class="bg-gray-50/80 rounded-lg p-6 shadow-sm border border-gray-100">
-      <div class="flex justify-between items-center">
+      <div class="flex max-lg:flex-wrap justify-center lg:justify-between items-center gap-4">
         <div class="flex items-center space-x-4">
           <div class="p-2 bg-blue-100/50 rounded-lg">
             <CreditCard class="w-6 h-6 text-blue-600" />
@@ -119,24 +119,18 @@ const toggleBillingCycle = () => {
             <p class="text-sm text-gray-500">Choose from our plans below to get started with VueLeaf.</p>
           </div>
         </div>
-        
-        <div class="flex items-center bg-gray-200/50 rounded-full p-1">
-          <button 
-            :class="[
-              'px-4 py-2 rounded-full text-sm font-medium transition-all',
-              props.billingCycle === 'monthly' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-600'
-            ]"
-            @click="toggleBillingCycle"
-          >
+
+        <div class="flex items-center max-lg:justify-center bg-gray-200/50 rounded-full p-1">
+          <button :class="[
+            'px-4 py-2 rounded-full text-sm font-medium transition-all',
+            props.billingCycle === 'monthly' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-600'
+          ]" @click="toggleBillingCycle">
             Monthly
           </button>
-          <button 
-            :class="[
-              'px-4 py-2 rounded-full text-sm font-medium transition-all',
-              props.billingCycle === 'annually' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-600'
-            ]"
-            @click="toggleBillingCycle"
-          >
+          <button :class="[
+            'px-4 py-2 flex items-center rounded-full text-sm font-medium transition-all',
+            props.billingCycle === 'annually' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-600'
+          ]" @click="toggleBillingCycle">
             Annually
             <span class="ml-1 px-1.5 py-0.5 bg-green-100 text-green-600 text-xs font-medium rounded-full">-20%</span>
           </button>
@@ -144,9 +138,9 @@ const toggleBillingCycle = () => {
       </div>
 
       <!-- Info Status Row -->
-      <div class="mt-6 flex divide-x divide-gray-200">
+      <div class="mt-6 flex max-lg:flex-col max-lg:gap-4 max-lg:divide-y lg:divide-x divide-gray-200">
         <!-- Current Plan Status -->
-        <div class="flex-1 px-4 first:pl-0 last:pr-0">
+        <div class="max-lg:pt-2 max-lg:pr-0 flex-1 px-4 first:pl-0 last:pr-0">
           <div class="flex justify-between items-center mb-2">
             <h2 class="text-sm font-medium text-gray-600">Current Plan</h2>
             <div class="p-1 bg-slate-100 rounded">
@@ -157,12 +151,10 @@ const toggleBillingCycle = () => {
             <div class="flex justify-between items-baseline">
               <div class="flex items-center gap-2">
                 <div class="text-lg font-medium text-gray-800">{{ currentPlanInfo.name }}</div>
-                <span 
-                  :class="[
-                    'px-2 py-1 text-xs rounded',
-                    isActive ? 'bg-green-100/60 text-green-600' : 'bg-gray-100/60 text-gray-600'
-                  ]"
-                >
+                <span :class="[
+                  'px-2 py-1 text-xs rounded',
+                  isActive ? 'bg-green-100/60 text-green-600' : 'bg-gray-100/60 text-gray-600'
+                ]">
                   {{ isActive ? 'Active' : 'Inactive' }}
                 </span>
               </div>
@@ -172,16 +164,14 @@ const toggleBillingCycle = () => {
               </div>
             </div>
             <div class="relative w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-              <div 
-                class="absolute top-0 left-0 h-full bg-slate-400 rounded-full transition-all duration-500 ease-out"
-                :style="{ width: isActive ? '100%' : '0%' }"
-              />
+              <div class="absolute top-0 left-0 h-full bg-slate-400 rounded-full transition-all duration-500 ease-out"
+                :style="{ width: isActive ? '100%' : '0%' }" />
             </div>
           </div>
         </div>
 
         <!-- Next Payment Status -->
-        <div class="flex-1 px-4 first:pl-0 last:pr-0">
+        <div class="max-lg:pt-2 max-lg:ps-0 max-lg:pr-0 flex-1 px-4 first:pl-0 last:pr-0">
           <div class="flex justify-between items-center mb-2">
             <h2 class="text-sm font-medium text-gray-600">Next Payment</h2>
             <div class="p-1 bg-slate-100 rounded">
@@ -197,16 +187,14 @@ const toggleBillingCycle = () => {
               </div>
             </div>
             <div class="relative w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-              <div 
-                class="absolute top-0 left-0 h-full bg-slate-400 rounded-full transition-all duration-500 ease-out"
-                :style="{ width: `${isActive ? (daysUntilPayment ? (30 - daysUntilPayment) / 30 * 100 : 0) : 0}%` }"
-              />
+              <div class="absolute top-0 left-0 h-full bg-slate-400 rounded-full transition-all duration-500 ease-out"
+                :style="{ width: `${isActive ? (daysUntilPayment ? (30 - daysUntilPayment) / 30 * 100 : 0) : 0}%` }" />
             </div>
           </div>
         </div>
 
         <!-- Keywords Status -->
-        <div class="flex-1 px-4 first:pl-0 last:pr-0">
+        <div class="max-lg:pt-2 max-lg:ps-0 flex-1 px-4 first:pl-0 last:pr-0">
           <div class="flex justify-between items-center mb-2">
             <h2 class="text-sm font-medium text-gray-600">Keywords Used</h2>
             <div class="p-1 bg-slate-100 rounded">
@@ -216,7 +204,7 @@ const toggleBillingCycle = () => {
           <div class="space-y-3">
             <div class="flex justify-between items-baseline">
               <div class="text-lg font-medium text-gray-800">
-                {{ currentPlanInfo.keywordsUsed }} 
+                {{ currentPlanInfo.keywordsUsed }}
                 <span class="text-gray-400 text-sm font-normal">/ {{ currentPlanInfo.keywordsLimit }}</span>
               </div>
               <div class="text-sm text-gray-500">
@@ -224,16 +212,14 @@ const toggleBillingCycle = () => {
               </div>
             </div>
             <div class="relative w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-              <div 
-                class="absolute top-0 left-0 h-full bg-slate-400 rounded-full transition-all duration-500 ease-out"
-                :style="{ width: `${currentPlanInfo.usagePercentage}%` }"
-              />
+              <div class="absolute top-0 left-0 h-full bg-slate-400 rounded-full transition-all duration-500 ease-out"
+                :style="{ width: `${currentPlanInfo.usagePercentage}%` }" />
             </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Payment History Section -->
     <div v-if="currentSubscription.lastPayment" class="bg-gray-50/80 rounded-lg p-6 shadow-sm border border-gray-100">
       <div class="flex items-center justify-between mb-4">
@@ -245,11 +231,13 @@ const toggleBillingCycle = () => {
         </div>
         <span class="text-sm text-gray-500">Last 30 days</span>
       </div>
-      
+
       <div class="border-t border-gray-200/50 pt-4">
         <div class="flex items-center justify-between">
           <div class="space-y-1">
-            <div class="font-medium text-gray-800">{{ currentPlanInfo.name }} Plan ({{ currentSubscription.billingCycle }})</div>
+            <div class="font-medium text-gray-800">{{ currentPlanInfo.name }} Plan ({{ currentSubscription.billingCycle
+            }})
+            </div>
             <div class="text-sm text-gray-500 flex items-center space-x-2">
               <span>{{ new Date(currentSubscription.lastPayment.date).toLocaleString() }}</span>
               <span>•</span>

@@ -44,31 +44,31 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   const now = new Date()
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  
+
   if (diffInSeconds < 60) {
     return 'just now'
   }
-  
+
   const diffInMinutes = Math.floor(diffInSeconds / 60)
   if (diffInMinutes < 60) {
     return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInHours = Math.floor(diffInMinutes / 60)
   if (diffInHours < 24) {
     return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInDays = Math.floor(diffInHours / 24)
   if (diffInDays < 30) {
     return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInMonths = Math.floor(diffInDays / 30)
   if (diffInMonths < 12) {
     return `${diffInMonths} month${diffInMonths === 1 ? '' : 's'} ago`
   }
-  
+
   const diffInYears = Math.floor(diffInDays / 365)
   return `${diffInYears} year${diffInYears === 1 ? '' : 's'} ago`
 }
@@ -83,10 +83,19 @@ const openDialog = () => {
     <!-- Main Feedback -->
     <div class="flex justify-between items-start">
       <div class="flex-1">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-sm font-medium text-gray-500">{{ item.user }}</span>
-          <span class="text-sm text-gray-400">•</span>
-          <span class="text-sm text-gray-500">{{ formatDate(item.created_at) }}</span>
+        <div class="flex justify-between">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-sm font-medium text-gray-500">{{ item.user }}</span>
+            <span class="text-sm text-gray-400">•</span>
+            <span class="text-sm text-gray-500">{{ formatDate(item.created_at) }}</span>
+          </div>
+          <div :class="[
+            'px-2 py-1 rounded-md border flex items-center space-x-1',
+            getStatusColor(item.status)
+          ]">
+            <component :is="getStatusIcon(item.status)" class="h-4 w-4" />
+            <span class="capitalize">{{ item.status }}</span>
+          </div>
         </div>
         <div class="text-gray-600 mb-2">
           <div class="space-y-3">
@@ -95,27 +104,11 @@ const openDialog = () => {
           </div>
         </div>
         <div v-if="item.attachment" class="mt-2">
-          <a 
-            :href="item.attachment"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-          >
+          <a :href="item.attachment" target="_blank" rel="noopener noreferrer"
+            class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
             View Attachment
           </a>
         </div>
-      </div>
-      <div 
-        :class="[
-          'px-2 py-1 rounded-md border flex items-center space-x-1',
-          getStatusColor(item.status)
-        ]"
-      >
-        <component
-          :is="getStatusIcon(item.status)"
-          class="h-4 w-4"
-        />
-        <span class="capitalize">{{ item.status }}</span>
       </div>
     </div>
 
@@ -125,12 +118,7 @@ const openDialog = () => {
         {{ item.replies.length }} {{ item.replies.length === 1 ? 'reply' : 'replies' }}
         • Last reply {{ formatDate(item.replies[item.replies.length - 1].created_at) }}
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        class="text-xs"
-        @click="openDialog"
-      >
+      <Button variant="outline" size="sm" class="text-xs" @click="openDialog">
         <MessageSquare class="h-4 w-4 mr-1" />
         {{ item.replies.length ? 'View Conversation' : 'Reply' }}
       </Button>

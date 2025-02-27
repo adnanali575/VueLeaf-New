@@ -54,26 +54,18 @@ const stats = computed<StatItem[]>(() => [
 
 <template>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <div
-      v-for="stat in stats"
-      :key="stat.title"
-      :class="[
-        'rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-4 border',
-        stat.bgClass
-      ]"
-    >
+    <div v-for="stat in stats" :key="stat.title" :class="[
+      'rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-4 border',
+      stat.bgClass
+    ]">
       <div class="flex flex-row items-center justify-between pb-2 space-y-0">
         <h3 :class="['text-sm font-medium', stat.titleClass]">
           {{ stat.title }}
         </h3>
-        <component
-          :is="isLoading ? Loader2 : stat.icon"
-          class="h-4 w-4"
-          :class="[
-            stat.iconClass,
-            { 'animate-spin': isLoading }
-          ]"
-        />
+        <component :is="isLoading ? Loader2 : stat.icon" class="h-4 w-4" :class="[
+          stat.iconClass,
+          { 'animate-spin': isLoading }
+        ]" />
       </div>
       <div class="pt-2">
         <div :class="['text-2xl font-bold', stat.valueClass]">
